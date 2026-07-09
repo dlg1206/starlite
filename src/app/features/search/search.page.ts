@@ -68,6 +68,7 @@ export class SearchPage {
     if (!query) return all;
     return all.filter(
       (course) =>
+        (course.subject_code+ " " + course.course_number).includes(query.toUpperCase()) ||
         course.name.toLowerCase().includes(query) ||
         course.description.toLowerCase().includes(query),
     );

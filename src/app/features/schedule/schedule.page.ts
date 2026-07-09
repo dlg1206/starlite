@@ -31,7 +31,6 @@ export class SchedulePage {
   private readonly scheduler = inject(ScheduleService);
 
   protected readonly weekdays = WEEKDAYS;
-  protected readonly bufferOptions = [15, 30, 45, 60, 75, 90, 105, 120];
 
   protected readonly campusName = computed(
     () => this.store.campuses().find((c) => c.id === this.store.selectedCampus())?.value ?? '',
@@ -64,6 +63,15 @@ export class SchedulePage {
 
   toggleSectionIncluded(subjectCode: string, courseNumber: string, crn: number, included: boolean): void {
     this.cart.setSectionIncluded(subjectCode, courseNumber, crn, included);
+  }
+
+  onBufferTimeChange(value: number | string | null): void {
+    if (value === '' || value === null) {
+      this.bufferTime.set(null);
+      return;
+    }
+    const minutes = Number(value);
+    this.bufferTime.set(Number.isNaN(minutes) ? null : Math.max(0, minutes));
   }
 
   toggleNewBlockDay(day: Day): void {

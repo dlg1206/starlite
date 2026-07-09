@@ -61,13 +61,15 @@
 
       <div class="field-row">
         <label>
-          Minimum buffer time between classes
-          <select [ngModel]="bufferTime()" (ngModelChange)="bufferTime.set($event)">
-            <option [ngValue]="null">No minimum</option>
-            @for (minutes of bufferOptions; track minutes) {
-              <option [ngValue]="minutes">{{ minutes }} minutes</option>
-            }
-          </select>
+          Minimum buffer time between classes (minutes)
+          <input
+            type="number"
+            min="0"
+            step="5"
+            placeholder="No minimum"
+            [ngModel]="bufferTime()"
+            (ngModelChange)="onBufferTimeChange($event)"
+          />
         </label>
       </div>
 

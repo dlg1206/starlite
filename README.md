@@ -1,4 +1,7 @@
-# 🌠 Starlite GUI
+<h1>
+    <img alt="starlite star" src="assets/starlite.png" width="100">
+    Starlite
+</h1>
 
 > Web app for searching course offerings University of Hawaiʻi and generating schedules
 

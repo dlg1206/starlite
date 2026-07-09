@@ -11,7 +11,7 @@
   "private": true,
   "packageManager": "npm@10.8.2",
   "dependencies": {
-    "@angular/common": "^21.2.0",
+    "@angular/common": "^22.0.6",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
     "@angular/forms": "^21.2.0",

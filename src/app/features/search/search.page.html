@@ -1,0 +1,177 @@
+@if (!store.isComplete()) {
+  <div class="empty-state card">
+    <h2>Search for courses</h2>
+    <p>Choose a campus, term, and at least one subject above to get started.</p>
+  </div>
+} @else {
+  <div class="search-page">
+    <div class="toolbar card">
+      <div class="toolbar-row">
+        <input
+          type="text"
+          class="title-search"
+          placeholder="Filter results by title or description…"
+          [(ngModel)]="titleFilter"
+          [disabled]="!hasSearched()"
+        />
+        <div class="toolbar-actions">
+          @if (loading()) {
+            <span class="hint">Searching…</span>
+          }
+          <button type="button" class="btn btn-ghost" (click)="filtersOpen.set(!filtersOpen())">
+            {{ filtersOpen() ? 'Hide filters' : 'Advanced filters' }}
+          </button>
+        </div>
+      </div>
+
+      @if (filtersOpen()) {
+        <div class="filters">
+          <fieldset>
+            <legend>Course numbers &amp; CRNs</legend>
+            <div class="grid-2">
+              <label>Only these course numbers<input type="text" [(ngModel)]="acceptCourseNumbers" placeholder="101, 211, 3**" /></label>
+              <label>Exclude these course numbers<input type="text" [(ngModel)]="rejectCourseNumbers" placeholder="101, 211, 3**" /></label>
+              <label>Only these CRNs<input type="text" [(ngModel)]="acceptCrns" placeholder="75018, 75019" /></label>
+              <label>Exclude these CRNs<input type="text" [(ngModel)]="rejectCrns" placeholder="75018, 75019" /></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Days &amp; times</legend>
+            <div class="day-group">
+              <span class="day-group-label">Only meet on</span>
+              @for (day of weekdays; track day) {
+                <label class="day-chip">
+                  <input type="checkbox" [checked]="isDaySelected('accept', day)" (change)="toggleDay('accept', day)" />
+                  {{ day }}
+                </label>
+              }
+            </div>
+            <div class="day-group">
+              <span class="day-group-label">Never meet on</span>
+              @for (day of weekdays; track day) {
+                <label class="day-chip">
+                  <input type="checkbox" [checked]="isDaySelected('reject', day)" (change)="toggleDay('reject', day)" />
+                  {{ day }}
+                </label>
+              }
+            </div>
+            <div class="grid-2">
+              <label>Starts after<input type="time" [(ngModel)]="startAfter" /></label>
+              <label>Ends before<input type="time" [(ngModel)]="endBefore" /></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Format &amp; policies</legend>
+            <div class="grid-2">
+              <label>Online
+                <select [(ngModel)]="onlyOnline">
+                  <option value="">Any</option>
+                  <option value="true">Online only</option>
+                  <option value="false">Exclude online</option>
+                </select>
+              </label>
+              <label>Async
+                <select [(ngModel)]="onlyAsync">
+                  <option value="">Any</option>
+                  <option value="true">Async only</option>
+                  <option value="false">Exclude async</option>
+                </select>
+              </label>
+              <label>Major restriction
+                <select [(ngModel)]="hasMajorRestriction">
+                  <option value="">Any</option>
+                  <option value="true">Restricted only</option>
+                  <option value="false">Unrestricted only</option>
+                </select>
+              </label>
+              <label>Prerequisites
+                <select [(ngModel)]="hasPrereq">
+                  <option value="">Any</option>
+                  <option value="true">Has prereqs</option>
+                  <option value="false">No prereqs</option>
+                </select>
+              </label>
+              <label>Audit option
+                <select [(ngModel)]="canAudit">
+                  <option value="">Any</option>
+                  <option value="true">Can audit</option>
+                  <option value="false">No audit</option>
+                </select>
+              </label>
+            </div>
+            <div class="checkbox-row">
+              <label class="checkbox-inline">
+                <input type="checkbox" [(ngModel)]="excludeFull" /> Hide full sections
+              </label>
+              <label class="checkbox-inline">
+                <input type="checkbox" [(ngModel)]="excludeWaitlisted" /> Hide waitlisted sections
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Instructors &amp; keywords</legend>
+            <p class="hint">Type a value and press Enter to add it.</p>
+            <div class="grid-2">
+              <label>
+                Only instructors usernames
+                <app-chip-input [(values)]="acceptInstructors" placeholder="Add username…" />
+              </label>
+              <label>
+                Exclude instructors usernames
+                <app-chip-input [(values)]="rejectInstructors" placeholder="Add username…" />
+              </label>
+              <label>
+                Title contains
+                <app-chip-input [(values)]="acceptTitleKeywords" placeholder="Add keyword…" />
+              </label>
+              <label>
+                Title excludes
+                <app-chip-input [(values)]="rejectTitleKeywords" placeholder="Add keyword…" />
+              </label>
+              <label>
+                Description contains
+                <app-chip-input [(values)]="acceptDescKeywords" placeholder="Add keyword…" />
+              </label>
+              <label>
+                Description excludes
+                <app-chip-input [(values)]="rejectDescKeywords" placeholder="Add keyword…" />
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="filters-actions">
+            <button type="button" class="btn btn-secondary" (click)="resetFilters()">Reset filters</button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="results">
+      @if (loading()) {
+        <p class="hint">Searching courses…</p>
+      }
+      @if (error()) {
+        <p class="banner-error">{{ error() }}</p>
+      }
+      @if (!loading() && hasSearched() && !error()) {
+        <p class="result-count">
+          @if (titleFilter().trim()) {
+            Showing {{ visibleCount() }} of {{ resultCount() }} course(s)
+          } @else {
+            {{ resultCount() }} course(s) found
+          }
+        </p>
+      }
+      @for (course of filteredResults(); track course.subject_code + course.course_number) {
+        <app-course-card [course]="course" />
+      } @empty {
+        @if (hasSearched() && !loading() && !error()) {
+          <p class="hint">No courses matched your search.</p>
+        }
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,38 @@
+.chip-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  input {
+    width: 100%;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: var(--color-chip-bg);
+  color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 2px var(--space-1) 2px var(--space-3);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  button {
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 var(--space-2);
+  }
+}

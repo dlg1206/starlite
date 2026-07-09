@@ -1,0 +1,110 @@
+<article class="course-card card">
+  <header class="course-header">
+    <div class="course-id">
+      <h3>{{ course().subject_code }} {{ course().course_number }}</h3>
+      <span class="course-name">{{ course().name }}</span>
+    </div>
+    <div class="course-meta">
+      <span class="credits">{{ course().credits }} cr</span>
+      @if (course().major_restriction) {
+        <span class="badge badge-warn">Major Restriction</span>
+      }
+      @if (course().prereq_description) {
+        <span class="badge">Has Prereqs</span>
+      }
+      @if (course().approval_authority) {
+        <span class="badge badge-warn">{{ course().approval_authority }} Approval Required</span>
+      }
+    </div>
+  </header>
+
+  @if (course().description) {
+    <p class="description">{{ course().description }}</p>
+  }
+
+  @if (course().prereq_description) {
+    <p class="prereq"><strong>Prerequisites:</strong> {{ course().prereq_description }}</p>
+  }
+
+  <div class="course-footnote">
+    @if (course().grading_options.length) {
+      <span>Grading: {{ course().grading_options.join(', ') }}</span>
+    }
+  </div>
+
+  @if (isDetailed()) {
+    <details class="sections-toggle">
+      <summary>
+        <span class="summary-text">{{ sections().length }} section(s)</span>
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-secondary]="isAllInCart()"
+          [class.btn-primary]="!isAllInCart()"
+          (click)="$event.stopPropagation(); addAllToCart()"
+        >
+          {{ isAllInCart() ? 'All Sections in Cart ✓' : '+ Add All Sections' }}
+        </button>
+      </summary>
+      <div class="sections">
+          @for (section of sections(); track section.crn) {
+            <div class="section">
+              <div class="section-head">
+                <span class="crn">{{ section.crn }}</span>
+                <span class="section-number">Sec {{ section.section_number }}</span>
+                <span class="format" [class]="formatClass(section.format)">{{ formatLabel(section.format) }}</span>
+                <span class="seats" [class.seats-full]="section.cur_enrolled >= section.max_enrolled">
+                  {{ section.cur_enrolled }}/{{ section.max_enrolled }} seats
+                </span>
+                @if (section.max_waitlist > 0) {
+                  <span class="seats waitlist">
+                    {{ section.cur_waitlist }}/{{ section.max_waitlist }} waitlist
+                  </span>
+                }
+                <button
+                  type="button"
+                  class="btn btn-sm"
+                  [class.btn-secondary]="isSectionInCart(section)"
+                  [class.btn-primary]="!isSectionInCart(section)"
+                  (click)="toggleSectionInCart(section)"
+                >
+                  {{ isSectionInCart(section) ? 'In Cart ✓' : '+ Add' }}
+                </button>
+              </div>
+              <div class="section-body">
+                <span class="instructor">
+                  Instructor:
+                  @if (section.instructor) {
+                    <a href="mailto:{{ section.instructor.username }}@hawaii.edu">
+                      {{ section.instructor.first_name }} {{ section.instructor.last_name }}
+                    </a>
+                  } @else {
+                   TBA
+                  }
+                </span>
+                <div class="meetings">
+                  @for (meeting of section.meetings; track $index) {
+                    <span class="meeting">
+                      {{ formatMeetingTime(meeting) }}
+                      @if (meeting.building_code) {
+                        · {{ meeting.building_code }} {{ meeting.room_code }}
+                      }
+                    </span>
+                  }
+                </div>
+                @if (section.attributes.length) {
+                  <div class="tags">
+                    @for (attr of section.attributes; track attr) {
+                      <span class="tag">{{ attr }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+      </div>
+    </details>
+  } @else {
+    <p class="hint">{{ numSections() }} section(s) available. Enable "Detailed" to view section times.</p>
+  }
+</article>

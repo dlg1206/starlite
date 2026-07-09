@@ -1,0 +1,40 @@
+<div class="grid-wrapper">
+  <div class="grid" [style.--hour-count]="hourMarks().length - 1">
+    <div class="corner"></div>
+    @for (day of days; track day) {
+      <div class="day-head">{{ dayLabel(day) }}</div>
+    }
+
+    <div class="hour-labels">
+      @for (mark of hourMarks(); track $index) {
+        <span class="hour-label">{{ mark }}</span>
+      }
+    </div>
+
+    @for (day of days; track day) {
+      <div class="day-column">
+        @for (block of blocksByDay()[day]; track $index) {
+          <div
+            class="meeting-block"
+            [style.top.%]="block.top"
+            [style.height.%]="block.height"
+            [style.background]="block.color"
+            [title]="block.courseLabel + ' ' + block.sectionLabel + ' ' + block.timeLabel"
+          >
+            <span class="block-course">{{ block.courseLabel }}</span>
+            <span class="block-time">{{ block.timeLabel }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (unscheduled().length) {
+    <div class="unscheduled">
+      <h4>No fixed meeting time</h4>
+      @for (item of unscheduled(); track item.courseLabel) {
+        <p>{{ item.courseLabel }} — {{ item.reason }}</p>
+      }
+    </div>
+  }
+</div>

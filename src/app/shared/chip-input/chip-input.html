@@ -1,0 +1,18 @@
+<div class="chip-input">
+  @if (values().length) {
+    <div class="chips">
+      @for (value of values(); track value) {
+        <span class="chip">
+          {{ value }}
+          <button type="button" (click)="remove(value)" aria-label="Remove {{ value }}">×</button>
+        </span>
+      }
+    </div>
+  }
+  <input
+    type="text"
+    [placeholder]="placeholder()"
+    [(ngModel)]="draft"
+    (keydown.enter)="$event.preventDefault(); addFromDraft()"
+  />
+</div>

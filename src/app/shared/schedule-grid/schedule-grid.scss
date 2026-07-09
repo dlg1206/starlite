@@ -1,0 +1,116 @@
+.grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 64px repeat(7, 1fr);
+  grid-template-rows: auto 600px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.corner {
+  border-bottom: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.day-head {
+  padding: var(--space-2);
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.hour-labels {
+  position: relative;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.hour-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  text-align: right;
+  padding-right: var(--space-1);
+}
+
+@for $i from 0 through 15 {
+  .hour-label:nth-child(#{$i + 1}) {
+    top: calc(#{$i} * (100% / 15));
+  }
+}
+
+.day-column {
+  position: relative;
+  border-right: 1px solid var(--color-border);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(100% / 15 - 1px),
+    var(--color-border) calc(100% / 15)
+  );
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.meeting-block {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: #fff;
+  font-size: 0.62rem;
+  line-height: 1.15;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.block-course {
+  font-weight: 700;
+}
+
+.block-time {
+  opacity: 0.9;
+}
+
+.unscheduled {
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+
+  h4 {
+    margin: 0 0 var(--space-2);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  p {
+    margin: 0 0 var(--space-1);
+    font-size: 0.85rem;
+  }
+}

@@ -1,4 +1,4 @@
-# Starlite GUI
+# 🌠 Starlite GUI
 > Web app for searching course offerings University of Hawaiʻi and generating schedules
 
 ## Features

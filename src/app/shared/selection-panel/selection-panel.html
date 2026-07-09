@@ -1,0 +1,88 @@
+<section class="selection-panel">
+  <div class="field">
+    <label for="campus-select">Campus</label>
+    <select
+      id="campus-select"
+      [ngModel]="store.selectedCampus() ?? ''"
+      (ngModelChange)="onCampusChange($event)"
+      [disabled]="store.campusesLoading()"
+    >
+      <option value="">Select a campus…</option>
+      @for (campus of store.campuses(); track campus.id) {
+        <option [value]="campus.id">{{ campus.value }}</option>
+      }
+    </select>
+    @if (store.campusesLoading()) {
+      <span class="hint">Loading campuses…</span>
+    }
+    @if (store.campusesError()) {
+      <span class="error">{{ store.campusesError() }}</span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="term-select">Term</label>
+    <select
+      id="term-select"
+      [ngModel]="store.selectedTerm() ?? ''"
+      (ngModelChange)="onTermChange($event)"
+      [disabled]="!store.selectedCampus() || store.termsLoading()"
+    >
+      <option value="">Select a term…</option>
+      @for (term of store.terms(); track term.id) {
+        <option [value]="term.id">{{ term.value }}</option>
+      }
+    </select>
+    @if (store.termsLoading()) {
+      <span class="hint">Loading terms…</span>
+    }
+    @if (store.termsError()) {
+      <span class="error">{{ store.termsError() }}</span>
+    }
+  </div>
+
+  <div class="field subjects-field">
+    <label for="subject-filter">Subjects <span class="required">(1 or more)</span></label>
+    <input
+      id="subject-filter"
+      type="text"
+      placeholder="Filter subjects…"
+      [(ngModel)]="subjectFilter"
+      [disabled]="!store.selectedTerm() || store.subjectsLoading()"
+    />
+    @if (store.subjectsLoading()) {
+      <span class="hint">Loading subjects…</span>
+    }
+    @if (store.subjectsError()) {
+      <span class="error">{{ store.subjectsError() }}</span>
+    }
+    @if (store.selectedTerm() && !store.subjectsLoading()) {
+      <div class="subject-list">
+        @for (subject of filteredSubjects(); track subject.id) {
+          <label class="subject-option">
+            <input
+              type="checkbox"
+              [checked]="isSubjectSelected(subject.id)"
+              (change)="store.toggleSubject(subject.id)"
+            />
+            <span class="label">{{ subject.id }} ({{ subject.value }})</span>
+          </label>
+        } @empty {
+          <p class="hint">No subjects match "{{ subjectFilter() }}".</p>
+        }
+      </div>
+      @if (store.selectedSubjects().size > 0) {
+        <div class="chips">
+          @for (code of store.selectedSubjects(); track code) {
+            <span class="chip">
+              {{ code }}
+              <button type="button" (click)="store.toggleSubject(code)" aria-label="Remove {{ code }}">
+                ×
+              </button>
+            </span>
+          }
+        </div>
+      }
+    }
+  </div>
+</section>

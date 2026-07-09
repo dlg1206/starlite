@@ -1,0 +1,175 @@
+@if (!store.selectedCampus() || !store.selectedTerm()) {
+  <div class="empty-state card">
+    <h2>Build a schedule</h2>
+    <p>Choose a campus and term from the Search Courses page first.</p>
+  </div>
+} @else if (cart.isEmpty()) {
+  <div class="empty-state card">
+    <h2>Your cart is empty</h2>
+    <p>
+      Add courses or sections to your cart from the Search Courses page, then come back here to
+      build a schedule.
+    </p>
+  </div>
+} @else {
+  <div class="schedule-page">
+    <p class="context-line">{{ campusName() }} · {{ termName() }}</p>
+
+    <div class="builder card">
+      <h3>1. Course overview</h3>
+      <p class="hint">
+        Adjust which sections of each course are allowed in your schedule. Uncheck a section to
+        exclude it.
+      </p>
+
+      <ul class="cart-list">
+        @for (item of cart.items(); track item.subjectCode + item.courseNumber) {
+          <li class="cart-item">
+            <div class="cart-item-head">
+              <span class="label">{{ item.subjectCode }} {{ item.courseNumber }} — {{ item.name }}</span>
+              <span class="credits">{{ item.credits }} cr</span>
+              <button
+                type="button"
+                class="btn btn-ghost"
+                (click)="cart.removeCourse(item.subjectCode, item.courseNumber)"
+              >
+                Remove
+              </button>
+            </div>
+            <details class="sections-dropdown">
+              <summary>{{ item.selectedCrns.size }} of {{ item.sections.length }} section(s) selected</summary>
+              <div class="section-options">
+                @for (sec of item.sections; track sec.crn) {
+                  <label class="section-option">
+                    <input
+                      type="checkbox"
+                      [checked]="item.selectedCrns.has(sec.crn)"
+                      (change)="toggleSectionIncluded(item.subjectCode, item.courseNumber, sec.crn, !item.selectedCrns.has(sec.crn))"
+                    />
+                    Sec {{ sec.sectionNumber }} (CRN {{ sec.crn }})
+                  </label>
+                }
+              </div>
+            </details>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <div class="builder card">
+      <h3>2. Optional constraints</h3>
+
+      <div class="field-row">
+        <label>
+          Minimum buffer time between classes
+          <select [ngModel]="bufferTime()" (ngModelChange)="bufferTime.set($event)">
+            <option [ngValue]="null">No minimum</option>
+            @for (minutes of bufferOptions; track minutes) {
+              <option [ngValue]="minutes">{{ minutes }} minutes</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <h4>Blocked time (no classes allowed)</h4>
+      <div class="add-block-row">
+        <div class="day-group">
+          @for (day of weekdays; track day) {
+            <label class="day-chip">
+              <input
+                type="checkbox"
+                [checked]="newBlockDays().has(day)"
+                (change)="toggleNewBlockDay(day)"
+              />
+              {{ day }}
+            </label>
+          }
+        </div>
+        <input type="time" [(ngModel)]="newBlockStart" />
+        <span class="to">to</span>
+        <input type="time" [(ngModel)]="newBlockEnd" />
+        <button type="button" class="btn btn-secondary" (click)="addBlock()">Add block</button>
+      </div>
+      <p class="hint">Leave days unchecked to block that time every day.</p>
+
+      @if (blocks().length) {
+        <ul class="requested-list">
+          @for (block of blocks(); track block.id) {
+            <li>
+              <span class="label"> {{ daysLabel(block) }}: {{ block.start }} – {{ block.end }} </span>
+              <button type="button" class="btn btn-ghost" (click)="removeBlock(block.id)">Remove</button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="generate-row">
+      <button
+        type="button"
+        class="btn btn-primary btn-large"
+        (click)="generate()"
+        [disabled]="loading() || !canGenerate()"
+      >
+        {{ loading() ? 'Generating…' : 'Generate schedules' }}
+      </button>
+    </div>
+
+    @if (error()) {
+      <p class="banner-error">{{ error() }}</p>
+    }
+
+    @if (schedules() !== null) {
+      <div class="results card">
+        @if (scheduleCount() === 0) {
+          <p class="hint">No valid schedules found with these courses and constraints.</p>
+        } @else {
+          <div class="results-header">
+            <h3>Schedule {{ currentIndex() + 1 }} of {{ scheduleCount() }}</h3>
+            <div class="pager">
+              <button type="button" class="btn btn-secondary" (click)="prevSchedule()" [disabled]="currentIndex() === 0">
+                ← Prev
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="nextSchedule()"
+                [disabled]="currentIndex() === scheduleCount() - 1"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+
+          <app-schedule-grid [courses]="currentSchedule()" />
+
+          <ul class="schedule-detail-list">
+            @for (sc of currentSchedule(); track sc.section.crn) {
+              <li>
+                <div class="sd-head">
+                  <span class="sd-course">{{ sc.subject_code }} {{ sc.course_number }} — {{ sc.name }}</span>
+                  <span class="sd-crn">{{ sc.section.crn }} · Sec {{ sc.section.section_number }}</span>
+                </div>
+                <div class="sd-meta">
+                  <span>{{ sc.credits }} cr</span>
+                  <span>{{ formatLabel(sc) }}</span>
+                  <span>
+                    Instructor:
+                    @if (sc.section.instructor) {
+                      <a href="mailto:{{ sc.section.instructor.username }}@hawaii.edu">
+                        {{ sc.section.instructor.first_name }} {{ sc.section.instructor.last_name }}
+                      </a>
+                    } @else {
+                       TBA
+                    }
+                  </span>
+                  <span>{{ sc.section.cur_enrolled }}/{{ sc.section.max_enrolled }} seats</span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
+}

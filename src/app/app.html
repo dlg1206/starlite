@@ -1,0 +1,32 @@
+<div class="app-shell">
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark">☀︎</span>
+      <span class="brand-name">Starlite</span>
+    </div>
+    <nav class="app-nav">
+      <a routerLink="/search" routerLinkActive="active">Search Courses</a>
+      <a routerLink="/schedule" routerLinkActive="active">
+        Build Schedule
+        @if (cart.count() > 0) {
+          <span class="nav-badge">{{ cart.count() }}</span>
+        }
+      </a>
+    </nav>
+  </header>
+
+  @if (showSelectionPanel()) {
+    <section class="selection-bar card">
+      <app-selection-panel />
+      @if (!store.isComplete()) {
+        <p class="gate-hint">
+          Pick a campus, a term, and at least one subject to search courses or build a schedule.
+        </p>
+      }
+    </section>
+  }
+
+  <main class="app-main">
+    <router-outlet />
+  </main>
+</div>

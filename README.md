@@ -1,7 +1,9 @@
 # 🌠 Starlite GUI
+
 > Web app for searching course offerings University of Hawaiʻi and generating schedules
 
 ## Features
+
 - **Search Courses**: browse/filter courses by number, CRN, days, times, format,
   instructor, keywords, and more; view section seat counts and meeting times.
 - **Build Schedule**: add specific courses (optionally restricted to certain
@@ -9,19 +11,36 @@
   every valid conflict-free schedule and page through them with a weekly
   calendar view.
 
-## Local Deployment
+## Quickstart
 
-This app expects a running instance of the [starlite-api](https://github.com/dlg1206/starlite-api) at `http://localhost:8080`
-
-Start the dev server with:
+Requires [Docker](https://docs.docker.com/engine/install/)
 
 ```bash
-npm start   # ng serve
+docker compose up
 ```
 
-Then open `http://localhost:4200`.
+The starlite gui will be available at `http://localhost` after a few moments.
 
-To point at a different API host, edit `apiBaseUrl` in
-`src/environments/environment.development.ts` (dev) or
-`src/environments/environment.ts` (production build) — or serve this app
-behind the same reverse proxy as the API and keep it as a relative `/api/v2`.
+## Local Deployment
+
+This app expects a running instance of the [starlite-api](https://github.com/dlg1206/starlite-api) at `http://localhost:8080`. Follow the [api readme](https://github.com/dlg1206/starlite-api#quickstart-guide) for details.
+
+1. Clone the repo with submodules
+
+```bash
+git clone --recurse-submodules https://github.com/dlg1206/starlite
+```
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Launch dev server
+
+```bash
+npm start
+```
+
+The starlite gui will be available at `http://localhost:4200`

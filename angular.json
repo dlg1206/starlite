@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "starlite-web": {
+    "starlite": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -68,10 +68,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "starlite-web:build:production"
+              "buildTarget": "starlite:build:production"
             },
             "development": {
-              "buildTarget": "starlite-web:build:development"
+              "buildTarget": "starlite:build:development"
             }
           },
           "defaultConfiguration": "development"

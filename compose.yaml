@@ -1,0 +1,26 @@
+# File: compose.yaml
+# Description: Prod starlite deployment
+#
+# Author: Derek Garcia
+
+name: starlite
+services:
+
+  # gui
+  gui:
+    image: starlite-gui
+    container_name: starlite-gui
+    build: .
+    pull_policy: never  # always use local build
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # starlite api server
+  api:
+    image: starlite-api
+    container_name: starlite-api
+    build: api
+    pull_policy: never  # always use local build

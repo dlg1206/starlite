@@ -15,9 +15,6 @@
           [disabled]="!hasSearched()"
         />
         <div class="toolbar-actions">
-          @if (loading()) {
-            <span class="hint">Searching…</span>
-          }
           <button type="button" class="btn btn-ghost" (click)="filtersOpen.set(!filtersOpen())">
             {{ filtersOpen() ? 'Hide filters' : 'Advanced filters' }}
           </button>

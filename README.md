@@ -4,12 +4,31 @@
 
 ## Features
 
-- **Search Courses**: browse/filter courses by number, CRN, days, times, format,
-  instructor, keywords, and more; view section seat counts and meeting times.
-- **Build Schedule**: add specific courses (optionally restricted to certain
-  CRNs), set a minimum buffer time and blocked-off time ranges, then generate
-  every valid conflict-free schedule and page through them with a weekly
-  calendar view.
+> Jump to [Quickstart](#quickstart) to get started
+
+### Cross-Subject Course Search
+
+<img src="assets/1_basic_search.png" width="750" height="503" alt="subject search">
+<img src="assets/2_course_overview.png" width="750" height="469" alt="course overview">
+
+- Search for multiple subjects for a campus and term and get details.
+
+### Filtering Options
+
+<img src="assets/3_keyword_search.png" width="750" height="302" alt="keyword search">
+
+- Search in real time with keywords.
+
+<img src="assets/4_advanced_search.png" width="750" height="537" alt="advanced search options">
+
+- Or use advanced course filtering options.
+
+### Schedule Generation
+
+<img src="assets/5_schedule_seed.png" width="750" height="557" alt="course cart for schedules">
+<img src="assets/6_schedules_preview.png" width="750" height="557" alt="preview of all possible schedules">
+
+- Generate all possible schedules, with support for reserved blocks and class buffer times
 
 ## Quickstart
 

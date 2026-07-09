@@ -34,6 +34,14 @@
 
 Requires [Docker](https://docs.docker.com/engine/install/)
 
+1. Clone the repo with submodules
+
+```bash
+git clone --recurse-submodules --shallow-submodules https://github.com/dlg1206/starlite
+```
+
+2. Launch compose stack
+
 ```bash
 docker compose up
 ```
@@ -42,12 +50,15 @@ The starlite gui will be available at `http://localhost` after a few moments.
 
 ## Local Deployment
 
-This app expects a running instance of the [starlite-api](https://github.com/dlg1206/starlite-api) at `http://localhost:8080`. Follow the [api readme](https://github.com/dlg1206/starlite-api#quickstart-guide) for details.
-
 1. Clone the repo with submodules
 
 ```bash
 git clone --recurse-submodules https://github.com/dlg1206/starlite
+```
+
+This app expects a running instance of the [starlite-api](https://github.com/dlg1206/starlite-api) at `http://localhost:8080`. Follow the [api readme](https://github.com/dlg1206/starlite-api#quickstart-guide) for details or if just need a running instance:
+```bash
+docker compose build api && docker run --rm -p 8080:8080 starlite-api
 ```
 
 2. Install dependencies

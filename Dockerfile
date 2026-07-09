@@ -1,4 +1,4 @@
-FROM node:alpine3.24 AS builder
+FROM node:24-alpine3.24 AS builder
 WORKDIR /build
 # install dependencies
 COPY package*.json ./

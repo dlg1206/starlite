@@ -12,11 +12,11 @@
   "packageManager": "npm@10.8.2",
   "dependencies": {
     "@angular/common": "^21.2.0",
-    "@angular/compiler": "^22.0.6",
+    "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
-    "@angular/forms": "^22.0.6",
+    "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
-    "@angular/router": "^22.0.6",
+    "@angular/router": "^21.2.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

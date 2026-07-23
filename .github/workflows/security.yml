@@ -1,6 +1,14 @@
 name: Security
 
-on: [ push, pull_request ]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 9 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
   scan:
@@ -10,8 +18,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Scan using grype
+        id: scan
         uses: anchore/scan-action@v7.4.0
         with:
           path: "."
           by-cve: true
-          output-format: table
+          output-format: sarif
+
+      - name: Upload SARIF report
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}

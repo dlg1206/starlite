@@ -30,6 +30,8 @@ updates:
       time: "09:00"
       timezone: "UTC"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "ci(deps)"
     groups:
       github-actions:
         patterns:

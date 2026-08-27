@@ -1,7 +1,15 @@
 <article class="course-card card">
   <header class="course-header">
     <div class="course-id">
-      <h3>{{ course().subject_code }} {{ course().course_number }}</h3>
+      <h3>
+        @if (sisUrl(); as url) {
+          <a [href]="url" target="_blank" rel="noopener">
+            {{ course().subject_code }} {{ course().course_number }}
+          </a>
+        } @else {
+          {{ course().subject_code }} {{ course().course_number }}
+        }
+      </h3>
       <span class="course-name">{{ course().name }}</span>
     </div>
     <div class="course-meta">

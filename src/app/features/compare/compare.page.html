@@ -1,0 +1,100 @@
+<div class="compare-page">
+  <div class="builder card">
+    <h3>Add schedule by ID</h3>
+    <p class="hint">
+      Paste a schedule ID copied from the Build Schedule page to add it to this comparison.
+    </p>
+    <form class="add-by-id-row" (ngSubmit)="addById()">
+      <input
+        type="text"
+        name="scheduleId"
+        placeholder="Paste a schedule ID…"
+        [(ngModel)]="idInput"
+      />
+      <button type="submit" class="btn btn-secondary" [disabled]="!idInput.trim() || addingById()">
+        {{ addingById() ? 'Adding…' : 'Add' }}
+      </button>
+    </form>
+    @if (addError()) {
+      <p class="banner-error">{{ addError() }}</p>
+    }
+  </div>
+
+  @if (exportError()) {
+    <p class="banner-error">{{ exportError() }}</p>
+  }
+
+  @if (compare.isEmpty()) {
+    <div class="empty-state card">
+      <h2>No schedules to compare</h2>
+      <p>
+        Generate a schedule from the Build Schedule page and click "Add to Compare", or add one
+        above using its schedule ID.
+      </p>
+    </div>
+  } @else {
+    <div class="compare-header">
+      <h3>{{ compare.count() }} schedule{{ compare.count() === 1 ? '' : 's' }}</h3>
+      <button type="button" class="btn btn-ghost" (click)="compare.clear()">Clear all</button>
+    </div>
+
+    <div class="tile-grid">
+      @for (entry of compare.schedules(); track entry.id) {
+        <div class="tile card">
+          <div class="tile-head">
+            <button
+              type="button"
+              class="btn btn-ghost icon-btn"
+              (click)="compare.remove(entry.id)"
+              title="Remove from comparison"
+              aria-label="Remove from comparison"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <app-schedule-grid [courses]="entry.schedule.courses" />
+          <app-schedule-detail-list [courses]="entry.schedule.courses" />
+
+          <div class="tile-actions">
+            <div class="copy-id-wrapper">
+              <button
+                type="button"
+                class="btn btn-secondary icon-btn"
+                (click)="copyId(entry.id)"
+                title="Copy schedule ID"
+                aria-label="Copy schedule ID"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                  <path
+                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+                  />
+                </svg>
+              </button>
+              @if (copiedId() === entry.id) {
+                <span class="copy-popup" role="status">Copied!</span>
+              }
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-secondary icon-btn"
+              (click)="exportIcs(entry.id, entry.schedule)"
+              [disabled]="exportingId() === entry.id"
+              [attr.title]="exportingId() === entry.id ? 'Exporting…' : 'Export .ical'"
+              [attr.aria-label]="exportingId() === entry.id ? 'Exporting…' : 'Export .ical'"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

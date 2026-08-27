@@ -1,0 +1,25 @@
+<ul class="schedule-detail-list">
+  @for (sc of courses(); track sc.section.crn) {
+    <li>
+      <div class="sd-head">
+        <span class="sd-course">{{ sc.subject_code }} {{ sc.course_number }} — {{ sc.name }}</span>
+        <span class="sd-crn">{{ sc.section.crn }} · Sec {{ sc.section.section_number }}</span>
+      </div>
+      <div class="sd-meta">
+        <span>{{ sc.credits }} cr</span>
+        <span>{{ formatLabel(sc) }}</span>
+        <span>
+          Instructor:
+          @if (sc.section.instructor) {
+            <a href="mailto:{{ sc.section.instructor.username }}@hawaii.edu">
+              {{ sc.section.instructor.first_name }} {{ sc.section.instructor.last_name }}
+            </a>
+          } @else {
+             TBA
+          }
+        </span>
+        <span>{{ sc.section.cur_enrolled }}/{{ sc.section.max_enrolled }} seats</span>
+      </div>
+    </li>
+  }
+</ul>

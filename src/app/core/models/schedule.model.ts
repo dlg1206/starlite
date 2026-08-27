@@ -29,11 +29,27 @@ export interface ScheduledCourse {
   course_number: string;
   name: string;
   description: string;
+  start_date: string;
+  end_date: string;
   credits: number;
   section: Section;
 }
 
+export interface Schedule {
+  /** URL to fetch this schedule as a JSON object. */
+  json_url: string;
+  /** URL to fetch this schedule as an ICS file. */
+  ics_url: string;
+  courses: ScheduledCourse[];
+}
+
 export interface ScheduleResponse {
   timestamp: string;
-  schedules: ScheduledCourse[][];
+  schedules: Schedule[];
+}
+
+/** Response from decoding a single schedule id back into a `Schedule` (`GET /schedule/{id}/json`). */
+export interface DecodedScheduleResponse {
+  timestamp: string;
+  schedule: Schedule;
 }

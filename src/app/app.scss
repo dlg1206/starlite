@@ -1,3 +1,43 @@
+.disclaimer-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  background: var(--color-warn-bg);
+  color: var(--color-warn-text);
+  border-bottom: 1px solid var(--color-warn-border);
+  font-size: 0.85rem;
+  text-align: center;
+  animation: disclaimer-drop 0.2s ease;
+}
+
+.disclaimer-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 var(--space-1);
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+@keyframes disclaimer-drop {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .app-shell {
   max-width: 1180px;
   margin: 0 auto;
@@ -50,6 +90,29 @@
       color: var(--color-primary);
       background: var(--color-chip-bg);
     }
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-text);
+    background: var(--color-bg);
   }
 }
 

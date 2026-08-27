@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -6,6 +6,8 @@ import { filter, map } from 'rxjs';
 import { SelectionPanel } from './shared/selection-panel/selection-panel';
 import { SelectionStore } from './core/state/selection.store';
 import { CartStore } from './core/state/cart.store';
+import { CompareStore } from './core/state/compare.store';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +18,8 @@ import { CartStore } from './core/state/cart.store';
 export class App {
   protected readonly store = inject(SelectionStore);
   protected readonly cart = inject(CartStore);
+  protected readonly compare = inject(CompareStore);
+  protected readonly themeService = inject(ThemeService);
 
   private readonly router = inject(Router);
   private readonly currentUrl = toSignal(
@@ -26,5 +30,12 @@ export class App {
     { initialValue: this.router.url },
   );
 
-  protected readonly showSelectionPanel = () => !this.currentUrl().startsWith('/schedule');
+  protected readonly showSelectionPanel = () =>
+    !this.currentUrl().startsWith('/schedule') && !this.currentUrl().startsWith('/compare');
+
+  protected readonly showDisclaimer = signal(true);
+
+  dismissDisclaimer(): void {
+    this.showDisclaimer.set(false);
+  }
 }

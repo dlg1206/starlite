@@ -20,6 +20,16 @@
   h3 {
     margin: 0;
     font-size: 1.05rem;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        color: var(--color-primary);
+        text-decoration: underline;
+      }
+    }
   }
 
   .course-name {
@@ -52,9 +62,9 @@
 }
 
 .badge-warn {
-  background: #fff4e5;
-  color: #a15c00;
-  border-color: #f5cf87;
+  background: var(--color-warn-bg);
+  color: var(--color-warn-text);
+  border-color: var(--color-warn-border);
 }
 
 .description,
@@ -156,13 +166,13 @@
   color: var(--color-primary-dark);
 
   &.format-online {
-    background: #eafaf1;
-    color: #0f7a3c;
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
   }
 
   &.format-hybrid {
-    background: #fff4e5;
-    color: #a15c00;
+    background: var(--color-warn-bg);
+    color: var(--color-warn-text);
   }
 }
 
@@ -176,7 +186,7 @@
   }
 
   &.waitlist {
-    color: #a15c00;
+    color: var(--color-warn-text);
   }
 }
 

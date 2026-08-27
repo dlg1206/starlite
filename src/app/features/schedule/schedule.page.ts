@@ -1,13 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { ScheduleService } from '../../core/services/schedule.service';
+import { ScheduleService, extractScheduleId } from '../../core/services/schedule.service';
 import { SelectionStore } from '../../core/state/selection.store';
 import { CartStore } from '../../core/state/cart.store';
+import { CompareStore } from '../../core/state/compare.store';
 import { ApiError } from '../../core/models/api-error.model';
 import { Day, WEEKDAYS } from '../../core/models/catalog.model';
-import { ScheduleBlock, ScheduledCourse } from '../../core/models/schedule.model';
+import { Schedule, ScheduleBlock, ScheduledCourse } from '../../core/models/schedule.model';
 import { ScheduleGrid } from '../../shared/schedule-grid/schedule-grid';
+import { ScheduleDetailList } from '../../shared/schedule-detail-list/schedule-detail-list';
+import { triggerDownload } from '../../shared/download';
 
 interface BlockRow {
   id: number;
@@ -21,13 +24,14 @@ let nextId = 1;
 @Component({
   selector: 'app-schedule-page',
   standalone: true,
-  imports: [FormsModule, ScheduleGrid],
+  imports: [FormsModule, ScheduleGrid, ScheduleDetailList],
   templateUrl: './schedule.page.html',
   styleUrl: './schedule.page.scss',
 })
 export class SchedulePage {
   protected readonly store = inject(SelectionStore);
   protected readonly cart = inject(CartStore);
+  protected readonly compare = inject(CompareStore);
   private readonly scheduler = inject(ScheduleService);
 
   protected readonly weekdays = WEEKDAYS;
@@ -49,16 +53,32 @@ export class SchedulePage {
   protected newBlockEnd = '';
   protected readonly newBlockDays = signal<Set<Day>>(new Set());
 
-  protected readonly schedules = signal<ScheduledCourse[][] | null>(null);
+  protected readonly schedules = signal<Schedule[] | null>(null);
   protected readonly currentIndex = signal(0);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
 
   protected readonly scheduleCount = computed(() => this.schedules()?.length ?? 0);
-  protected readonly currentSchedule = computed<ScheduledCourse[]>(() => {
+  private readonly currentScheduleEntry = computed<Schedule | null>(() => {
     const all = this.schedules();
-    if (!all || all.length === 0) return [];
+    if (!all || all.length === 0) return null;
     return all[Math.min(this.currentIndex(), all.length - 1)];
+  });
+  protected readonly currentSchedule = computed<ScheduledCourse[]>(
+    () => this.currentScheduleEntry()?.courses ?? [],
+  );
+  protected readonly currentIcsUrl = computed<string | null>(
+    () => this.currentScheduleEntry()?.ics_url ?? null,
+  );
+  protected readonly currentScheduleId = computed<string | null>(() => {
+    const entry = this.currentScheduleEntry();
+    return entry ? extractScheduleId(entry.ics_url) : null;
+  });
+  protected readonly exportingIcs = signal(false);
+  protected readonly idCopied = signal(false);
+  protected readonly isCurrentInCompare = computed(() => {
+    const id = this.currentScheduleId();
+    return !!id && this.compare.has(id);
   });
 
   toggleSectionIncluded(subjectCode: string, courseNumber: string, crn: number, included: boolean): void {
@@ -105,10 +125,6 @@ export class SchedulePage {
     return block.days.size ? Array.from(block.days).join(', ') : 'Every day';
   }
 
-  formatLabel(sc: ScheduledCourse): string {
-    return sc.section.format ?? 'TBA';
-  }
-
   generate(): void {
     const campus = this.store.selectedCampus();
     const term = this.store.selectedTerm();
@@ -149,5 +165,41 @@ export class SchedulePage {
 
   nextSchedule(): void {
     this.currentIndex.update((i) => Math.min(this.scheduleCount() - 1, i + 1));
+  }
+
+  exportIcs(): void {
+    const icsUrl = this.currentIcsUrl();
+    if (!icsUrl || this.exportingIcs()) return;
+
+    this.exportingIcs.set(true);
+    this.scheduler.downloadIcs(icsUrl).subscribe({
+      next: ({ blob, filename }) => {
+        triggerDownload(blob, filename);
+        this.exportingIcs.set(false);
+      },
+      error: (err: unknown) => {
+        this.error.set(err instanceof ApiError ? err.message : 'Failed to export schedule as .ics.');
+        this.exportingIcs.set(false);
+      },
+    });
+  }
+
+  copyScheduleId(): void {
+    const id = this.currentScheduleId();
+    if (!id) return;
+
+    navigator.clipboard.writeText(id).then(() => {
+      this.idCopied.set(true);
+      setTimeout(() => this.idCopied.set(false), 1500);
+    });
+  }
+
+  toggleCompare(): void {
+    const id = this.currentScheduleId();
+    const entry = this.currentScheduleEntry();
+    if (!id || !entry) return;
+
+    if (this.compare.has(id)) this.compare.remove(id);
+    else this.compare.add(id, entry);
   }
 }

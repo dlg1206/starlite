@@ -3,35 +3,46 @@
     Starlite
 </h1>
 
-> Web app for searching course offerings University of Hawaiʻi and generating schedules
+> Web app for searching for courses offered and generating schedules for all ten campuses at the [University of Hawai'i](https://www.hawaii.edu/)
 
-## Features
+- Search for courses across multiple subjects
+- Real-time and advanced filtering options
+- Automated schedule generation
+- Compare different schedules
+- Export schedules as ICalander files
+
+## Feature Overview
 
 > Jump to [Quickstart](#quickstart) to get started
 
 ### Cross-Subject Course Search
 
-<img src="assets/1_basic_search.png" width="750" height="503" alt="subject search">
-<img src="assets/2_course_overview.png" width="750" height="469" alt="course overview">
+<img src="assets/1_basic_search.png" width="750" height="561" alt="subject search">
+<img src="assets/2_course_overview.png" width="750" height="561" alt="course overview">
 
 - Search for multiple subjects for a campus and term and get details.
 
 ### Filtering Options
 
-<img src="assets/3_keyword_search.png" width="750" height="302" alt="keyword search">
+<img src="assets/3_keyword_search.png" width="750" height="561" alt="keyword search">
 
 - Search in real time with keywords.
 
-<img src="assets/4_advanced_search.png" width="750" height="537" alt="advanced search options">
+<img src="assets/4_advanced_search.png" width="750" height="561" alt="advanced search options">
 
 - Or use advanced course filtering options.
 
 ### Schedule Generation
 
-<img src="assets/5_schedule_seed.png" width="750" height="557" alt="course cart for schedules">
-<img src="assets/6_schedules_preview.png" width="750" height="557" alt="preview of all possible schedules">
+<img src="assets/5_schedule_seed.png" width="750" height="561" alt="course cart for schedules">
+<img src="assets/6_schedules_preview.png" width="750" height="561" alt="preview of all possible schedules">
 
 - Generate all possible schedules, with support for reserved blocks and class buffer times
+- Download generated schedules as an [ICalender](https://en.wikipedia.org/wiki/ICalendar) file that can be imported into [Google Calendar](https://support.google.com/calendar/answer/37118), [Apple Calendar](https://support.apple.com/guide/calendar/import-or-export-calendars-icl1023/mac),[Outlook](https://support.microsoft.com/en-us/outlook/import-or-subscribe-to-a-calendar-in-outlook-com-or-outlook-on-the-web), and other calendar software.
+
+<img src="assets/7_compare_schedules.png" width="750" height="735" alt="compare schedules">
+
+- Compare different schedules
 
 ## Quickstart
 
@@ -53,6 +64,11 @@ The starlite gui will be available at `http://localhost` after a few moments.
 
 ## Local Deployment
 
+**Prerequisites**
+
+- `node` >= 20
+- `npm` >= 10
+
 1. Clone the repo with submodules
 
 ```bash
@@ -60,6 +76,7 @@ git clone --recurse-submodules https://github.com/dlg1206/starlite
 ```
 
 This app expects a running instance of the [starlite-api](https://github.com/dlg1206/starlite-api) at `http://localhost:8080`. Follow the [api readme](https://github.com/dlg1206/starlite-api#quickstart-guide) for details or if just need a running instance:
+
 ```bash
 docker compose build api && docker run --rm -p 8080:8080 starlite-api
 ```

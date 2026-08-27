@@ -1,6 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 
 import { CartStore } from '../../core/state/cart.store';
+import { SelectionStore } from '../../core/state/selection.store';
 import {
   Course,
   Section,
@@ -8,6 +9,7 @@ import {
   isDetailedCourse,
 } from '../../core/models/catalog.model';
 import { formatMeetingTime } from '../format-time';
+import { sisCrseavailUrl } from '../sis-links';
 
 @Component({
   selector: 'app-course-card',
@@ -17,8 +19,15 @@ import { formatMeetingTime } from '../format-time';
 })
 export class CourseCard {
   private readonly cart = inject(CartStore);
+  private readonly store = inject(SelectionStore);
 
   readonly course = input.required<Course>();
+
+  protected readonly sisUrl = computed<string | null>(() => {
+    const campus = this.store.selectedCampus();
+    const term = this.store.selectedTerm();
+    return campus && term ? sisCrseavailUrl(term, campus, this.course().subject_code) : null;
+  });
 
   protected readonly isDetailed = computed(() => isDetailedCourse(this.course()));
   protected readonly sections = computed(() => {

@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of, tap, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiError, ApiErrorBody } from '../models/api-error.model';
@@ -39,7 +39,7 @@ export class CatalogService {
       .pipe(map((res) => res.identifiers), catchError(rethrowAsApiError));
   }
 
-  /** Only fetches subjects that aren't already cached (client-side, 30 min TTL); the rest come from cache. */
+  /** Fetches one subject at a time via the single-subject endpoint; only subjects not already cached (client-side, 30 min TTL) hit the network. */
   getCourses(
     campusCode: string,
     termCode: string,
@@ -56,31 +56,28 @@ export class CatalogService {
     );
     if (missingSubjects.length === 0) return of(sortCourses(cached));
 
-    const params = buildCourseParams(missingSubjects, detailed);
-    return this.http
-      .get<CourseResponse>(
-        `${this.base}/campuses/${encodeURIComponent(campusCode)}/terms/${encodeURIComponent(termCode)}/courses`,
-        { params },
-      )
-      .pipe(
-        map((res) => res.courses),
-        tap((fetched) =>
-          this.cacheFetchedBySubject(
-            'get',
-            campusCode,
-            termCode,
-            missingSubjects,
-            detailed,
-            undefined,
-            fetched,
+    const params = buildDetailedParams(detailed);
+    return forkJoin(
+      missingSubjects.map((subject) =>
+        this.http
+          .get<CourseResponse>(this.subjectUrl(campusCode, termCode, subject), { params })
+          .pipe(
+            map((res) => res.courses),
+            tap((courses) =>
+              this.courseCache.set(
+                subjectCacheKey('get', campusCode, termCode, subject, detailed, undefined),
+                courses,
+              ),
+            ),
           ),
-        ),
-        map((fetched) => sortCourses([...cached, ...fetched])),
-        catchError(rethrowAsApiError),
-      );
+      ),
+    ).pipe(
+      map((fetched) => sortCourses([...cached, ...fetched.flat()])),
+      catchError(rethrowAsApiError),
+    );
   }
 
-  /** Only fetches subjects that aren't already cached for this exact filter (client-side, 30 min TTL). */
+  /** Fetches one subject at a time via the single-subject endpoint; only subjects not already cached for this exact filter (client-side, 30 min TTL) hit the network. */
   filterCourses(
     campusCode: string,
     termCode: string,
@@ -98,29 +95,29 @@ export class CatalogService {
     );
     if (missingSubjects.length === 0) return of(sortCourses(cached));
 
-    const params = buildCourseParams(missingSubjects, detailed);
-    return this.http
-      .post<CourseResponse>(
-        `${this.base}/campuses/${encodeURIComponent(campusCode)}/terms/${encodeURIComponent(termCode)}/courses`,
-        filter,
-        { params },
-      )
-      .pipe(
-        map((res) => res.courses),
-        tap((fetched) =>
-          this.cacheFetchedBySubject(
-            'filter',
-            campusCode,
-            termCode,
-            missingSubjects,
-            detailed,
-            filter,
-            fetched,
+    const params = buildDetailedParams(detailed);
+    return forkJoin(
+      missingSubjects.map((subject) =>
+        this.http
+          .post<CourseResponse>(this.subjectUrl(campusCode, termCode, subject), filter, { params })
+          .pipe(
+            map((res) => res.courses),
+            tap((courses) =>
+              this.courseCache.set(
+                subjectCacheKey('filter', campusCode, termCode, subject, detailed, filter),
+                courses,
+              ),
+            ),
           ),
-        ),
-        map((fetched) => sortCourses([...cached, ...fetched])),
-        catchError(rethrowAsApiError),
-      );
+      ),
+    ).pipe(
+      map((fetched) => sortCourses([...cached, ...fetched.flat()])),
+      catchError(rethrowAsApiError),
+    );
+  }
+
+  private subjectUrl(campusCode: string, termCode: string, subjectCode: string): string {
+    return `${this.base}/campuses/${encodeURIComponent(campusCode)}/terms/${encodeURIComponent(termCode)}/subjects/${encodeURIComponent(subjectCode)}`;
   }
 
   private splitBySubjectCache(
@@ -141,26 +138,6 @@ export class CatalogService {
       else missingSubjects.push(subject);
     }
     return { cached, missingSubjects };
-  }
-
-  private cacheFetchedBySubject(
-    kind: CacheKind,
-    campusCode: string,
-    termCode: string,
-    subjects: string[],
-    detailed: boolean,
-    filter: CourseFilterRequest | undefined,
-    courses: Course[],
-  ): void {
-    for (const subject of subjects) {
-      const subjectCourses = courses.filter(
-        (c) => c.subject_code.toUpperCase() === subject.toUpperCase(),
-      );
-      this.courseCache.set(
-        subjectCacheKey(kind, campusCode, termCode, subject, detailed, filter),
-        subjectCourses,
-      );
-    }
   }
 }
 
@@ -187,10 +164,8 @@ function sortCourses(courses: Course[]): Course[] {
   });
 }
 
-function buildCourseParams(subjects: string[], detailed: boolean): HttpParams {
-  let params = new HttpParams().set('subjects', subjects.join(','));
-  if (detailed) params = params.set('detailed', 'true');
-  return params;
+function buildDetailedParams(detailed: boolean): HttpParams {
+  return detailed ? new HttpParams().set('detailed', 'true') : new HttpParams();
 }
 
 export function rethrowAsApiError(err: unknown): Observable<never> {

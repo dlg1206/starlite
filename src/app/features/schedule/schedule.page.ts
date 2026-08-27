@@ -6,7 +6,7 @@ import { SelectionStore } from '../../core/state/selection.store';
 import { CartStore } from '../../core/state/cart.store';
 import { ApiError } from '../../core/models/api-error.model';
 import { Day, WEEKDAYS } from '../../core/models/catalog.model';
-import { ScheduleBlock, ScheduledCourse } from '../../core/models/schedule.model';
+import { Schedule, ScheduleBlock, ScheduledCourse } from '../../core/models/schedule.model';
 import { ScheduleGrid } from '../../shared/schedule-grid/schedule-grid';
 
 interface BlockRow {
@@ -49,7 +49,7 @@ export class SchedulePage {
   protected newBlockEnd = '';
   protected readonly newBlockDays = signal<Set<Day>>(new Set());
 
-  protected readonly schedules = signal<ScheduledCourse[][] | null>(null);
+  protected readonly schedules = signal<Schedule[] | null>(null);
   protected readonly currentIndex = signal(0);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -58,7 +58,7 @@ export class SchedulePage {
   protected readonly currentSchedule = computed<ScheduledCourse[]>(() => {
     const all = this.schedules();
     if (!all || all.length === 0) return [];
-    return all[Math.min(this.currentIndex(), all.length - 1)];
+    return all[Math.min(this.currentIndex(), all.length - 1)].courses;
   });
 
   toggleSectionIncluded(subjectCode: string, courseNumber: string, crn: number, included: boolean): void {

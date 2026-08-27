@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ScheduleRequest, ScheduleResponse, ScheduledCourse } from '../models/schedule.model';
+import { Schedule, ScheduleRequest, ScheduleResponse } from '../models/schedule.model';
 import { rethrowAsApiError } from './catalog.service';
 
 @Injectable({ providedIn: 'root' })
@@ -15,7 +15,7 @@ export class ScheduleService {
     campusCode: string,
     termCode: string,
     request: ScheduleRequest,
-  ): Observable<ScheduledCourse[][]> {
+  ): Observable<Schedule[]> {
     return this.http
       .post<ScheduleResponse>(
         `${this.base}/campuses/${encodeURIComponent(campusCode)}/terms/${encodeURIComponent(termCode)}/schedule`,

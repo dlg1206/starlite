@@ -2,9 +2,10 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { CatalogService } from '../../core/services/catalog.service';
+import { applyCourseFilter } from '../../core/services/course-filter';
 import { SelectionStore } from '../../core/state/selection.store';
 import { ApiError } from '../../core/models/api-error.model';
-import { Course } from '../../core/models/catalog.model';
+import { DetailedCourse, isDetailedCourse } from '../../core/models/catalog.model';
 import { CourseFilterRequest } from '../../core/models/course-filter.model';
 import { ChipInput } from '../../shared/chip-input/chip-input';
 import { CourseCard } from '../../shared/course-card/course-card';
@@ -54,15 +55,22 @@ export class SearchPage {
   protected readonly excludeFull = signal(false);
   protected readonly excludeWaitlisted = signal(false);
 
-  protected readonly results = signal<Course[] | null>(null);
+  /** Unfiltered courses fetched for the selected subjects; the advanced filter is applied client-side on top of this. */
+  protected readonly rawCourses = signal<DetailedCourse[] | null>(null);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly hasSearched = signal(false);
 
-  protected readonly resultCount = computed(() => this.results()?.length ?? 0);
+  private readonly advancedFiltered = computed<DetailedCourse[] | null>(() => {
+    const all = this.rawCourses();
+    if (!all) return null;
+    return applyCourseFilter(all, this.buildFilterRequest());
+  });
 
-  protected readonly filteredResults = computed<Course[] | null>(() => {
-    const all = this.results();
+  protected readonly resultCount = computed(() => this.advancedFiltered()?.length ?? 0);
+
+  protected readonly filteredResults = computed<DetailedCourse[] | null>(() => {
+    const all = this.advancedFiltered();
     if (!all) return null;
     const query = this.titleFilter().trim().toLowerCase();
     if (!query) return all;
@@ -79,34 +87,12 @@ export class SearchPage {
   private debounceHandle: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
+    // Only campus/term/subject changes need a fetch; advanced filter controls are applied
+    // client-side (via the `advancedFiltered` computed) against whatever's already been fetched.
     effect(() => {
       const campus = this.store.selectedCampus();
       const term = this.store.selectedTerm();
       const subjects = Array.from(this.store.selectedSubjects());
-
-      // establish dependency on every filter control so changing any of them
-      // re-triggers a search automatically, without a manual Search button
-      this.acceptDays();
-      this.rejectDays();
-      this.acceptInstructors();
-      this.rejectInstructors();
-      this.acceptTitleKeywords();
-      this.rejectTitleKeywords();
-      this.acceptDescKeywords();
-      this.rejectDescKeywords();
-      this.acceptCourseNumbers();
-      this.rejectCourseNumbers();
-      this.acceptCrns();
-      this.rejectCrns();
-      this.startAfter();
-      this.endBefore();
-      this.onlyOnline();
-      this.onlyAsync();
-      this.hasMajorRestriction();
-      this.hasPrereq();
-      this.canAudit();
-      this.excludeFull();
-      this.excludeWaitlisted();
 
       if (this.debounceHandle) clearTimeout(this.debounceHandle);
       if (!campus || !term || subjects.length === 0) return;
@@ -162,11 +148,9 @@ export class SearchPage {
     this.hasSearched.set(true);
     this.titleFilter.set('');
 
-    const filter = this.buildFilterRequest();
-
-    this.catalog.filterCourses(campus, term, subjects, filter, true).subscribe({
+    this.catalog.getCourses(campus, term, subjects, true).subscribe({
       next: (courses) => {
-        this.results.set(courses);
+        this.rawCourses.set(courses.filter(isDetailedCourse));
         this.loading.set(false);
       },
       error: (err: unknown) => {

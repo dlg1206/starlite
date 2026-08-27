@@ -5,7 +5,6 @@ import { Observable, catchError, forkJoin, map, of, tap, throwError } from 'rxjs
 import { environment } from '../../../environments/environment';
 import { ApiError, ApiErrorBody } from '../models/api-error.model';
 import { Course, CourseResponse } from '../models/catalog.model';
-import { CourseFilterRequest } from '../models/course-filter.model';
 import { Identifier, IdentifierResponse } from '../models/identifier.model';
 import { TtlCache } from './ttl-cache';
 
@@ -39,21 +38,19 @@ export class CatalogService {
       .pipe(map((res) => res.identifiers), catchError(rethrowAsApiError));
   }
 
-  /** Fetches one subject at a time via the single-subject endpoint; only subjects not already cached (client-side, 30 min TTL) hit the network. */
+  /**
+   * Fetches one subject at a time via the single-subject endpoint; only subjects not already
+   * cached (client-side, 30 min TTL) hit the network. Always unfiltered — the advanced filter is
+   * applied client-side (see core/services/course-filter.ts) against these cached results so it
+   * keeps working once local data is used in place of the API.
+   */
   getCourses(
     campusCode: string,
     termCode: string,
     subjects: string[],
     detailed = false,
   ): Observable<Course[]> {
-    const { cached, missingSubjects } = this.splitBySubjectCache(
-      'get',
-      campusCode,
-      termCode,
-      subjects,
-      detailed,
-      undefined,
-    );
+    const { cached, missingSubjects } = this.splitBySubjectCache(campusCode, termCode, subjects, detailed);
     if (missingSubjects.length === 0) return of(sortCourses(cached));
 
     const params = buildDetailedParams(detailed);
@@ -65,46 +62,7 @@ export class CatalogService {
             map((res) => res.courses),
             tap((courses) =>
               this.courseCache.set(
-                subjectCacheKey('get', campusCode, termCode, subject, detailed, undefined),
-                courses,
-              ),
-            ),
-          ),
-      ),
-    ).pipe(
-      map((fetched) => sortCourses([...cached, ...fetched.flat()])),
-      catchError(rethrowAsApiError),
-    );
-  }
-
-  /** Fetches one subject at a time via the single-subject endpoint; only subjects not already cached for this exact filter (client-side, 30 min TTL) hit the network. */
-  filterCourses(
-    campusCode: string,
-    termCode: string,
-    subjects: string[],
-    filter: CourseFilterRequest,
-    detailed = false,
-  ): Observable<Course[]> {
-    const { cached, missingSubjects } = this.splitBySubjectCache(
-      'filter',
-      campusCode,
-      termCode,
-      subjects,
-      detailed,
-      filter,
-    );
-    if (missingSubjects.length === 0) return of(sortCourses(cached));
-
-    const params = buildDetailedParams(detailed);
-    return forkJoin(
-      missingSubjects.map((subject) =>
-        this.http
-          .post<CourseResponse>(this.subjectUrl(campusCode, termCode, subject), filter, { params })
-          .pipe(
-            map((res) => res.courses),
-            tap((courses) =>
-              this.courseCache.set(
-                subjectCacheKey('filter', campusCode, termCode, subject, detailed, filter),
+                subjectCacheKey(campusCode, termCode, subject, detailed),
                 courses,
               ),
             ),
@@ -121,19 +79,15 @@ export class CatalogService {
   }
 
   private splitBySubjectCache(
-    kind: CacheKind,
     campusCode: string,
     termCode: string,
     subjects: string[],
     detailed: boolean,
-    filter: CourseFilterRequest | undefined,
   ): { cached: Course[]; missingSubjects: string[] } {
     const cached: Course[] = [];
     const missingSubjects: string[] = [];
     for (const subject of subjects) {
-      const hit = this.courseCache.get(
-        subjectCacheKey(kind, campusCode, termCode, subject, detailed, filter),
-      );
+      const hit = this.courseCache.get(subjectCacheKey(campusCode, termCode, subject, detailed));
       if (hit) cached.push(...hit);
       else missingSubjects.push(subject);
     }
@@ -141,17 +95,13 @@ export class CatalogService {
   }
 }
 
-type CacheKind = 'get' | 'filter';
-
 function subjectCacheKey(
-  kind: CacheKind,
   campusCode: string,
   termCode: string,
   subject: string,
   detailed: boolean,
-  filter: CourseFilterRequest | undefined,
 ): string {
-  return JSON.stringify([kind, campusCode, termCode, subject.toUpperCase(), detailed, filter ?? null]);
+  return JSON.stringify([campusCode, termCode, subject.toUpperCase(), detailed]);
 }
 
 function sortCourses(courses: Course[]): Course[] {

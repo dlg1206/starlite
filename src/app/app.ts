@@ -7,6 +7,7 @@ import { SelectionPanel } from './shared/selection-panel/selection-panel';
 import { SelectionStore } from './core/state/selection.store';
 import { CartStore } from './core/state/cart.store';
 import { CompareStore } from './core/state/compare.store';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ export class App {
   protected readonly store = inject(SelectionStore);
   protected readonly cart = inject(CartStore);
   protected readonly compare = inject(CompareStore);
+  protected readonly themeService = inject(ThemeService);
 
   private readonly router = inject(Router);
   private readonly currentUrl = toSignal(

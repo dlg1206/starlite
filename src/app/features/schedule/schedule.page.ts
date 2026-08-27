@@ -66,7 +66,12 @@ export class SchedulePage {
   protected readonly currentIcsUrl = computed<string | null>(
     () => this.currentScheduleEntry()?.ics_url ?? null,
   );
+  protected readonly currentScheduleId = computed<string | null>(() => {
+    const entry = this.currentScheduleEntry();
+    return entry ? extractScheduleId(entry.ics_url) : null;
+  });
   protected readonly exportingIcs = signal(false);
+  protected readonly idCopied = signal(false);
 
   toggleSectionIncluded(subjectCode: string, courseNumber: string, crn: number, included: boolean): void {
     this.cart.setSectionIncluded(subjectCode, courseNumber, crn, included);
@@ -174,6 +179,16 @@ export class SchedulePage {
       },
     });
   }
+
+  copyScheduleId(): void {
+    const id = this.currentScheduleId();
+    if (!id) return;
+
+    navigator.clipboard.writeText(id).then(() => {
+      this.idCopied.set(true);
+      setTimeout(() => this.idCopied.set(false), 1500);
+    });
+  }
 }
 
 function triggerDownload(blob: Blob, filename: string): void {
@@ -183,4 +198,11 @@ function triggerDownload(blob: Blob, filename: string): void {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+/** The schedule id is the `{id}` path segment in `.../schedule/{id}/ics` (or `/json`). */
+function extractScheduleId(url: string): string | null {
+  const segments = new URL(url).pathname.split('/').filter(Boolean);
+  const index = segments.indexOf('schedule');
+  return index >= 0 && index + 1 < segments.length ? segments[index + 1] : null;
 }

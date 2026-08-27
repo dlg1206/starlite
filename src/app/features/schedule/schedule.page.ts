@@ -55,11 +55,18 @@ export class SchedulePage {
   protected readonly error = signal<string | null>(null);
 
   protected readonly scheduleCount = computed(() => this.schedules()?.length ?? 0);
-  protected readonly currentSchedule = computed<ScheduledCourse[]>(() => {
+  private readonly currentScheduleEntry = computed<Schedule | null>(() => {
     const all = this.schedules();
-    if (!all || all.length === 0) return [];
-    return all[Math.min(this.currentIndex(), all.length - 1)].courses;
+    if (!all || all.length === 0) return null;
+    return all[Math.min(this.currentIndex(), all.length - 1)];
   });
+  protected readonly currentSchedule = computed<ScheduledCourse[]>(
+    () => this.currentScheduleEntry()?.courses ?? [],
+  );
+  protected readonly currentIcsUrl = computed<string | null>(
+    () => this.currentScheduleEntry()?.ics_url ?? null,
+  );
+  protected readonly exportingIcs = signal(false);
 
   toggleSectionIncluded(subjectCode: string, courseNumber: string, crn: number, included: boolean): void {
     this.cart.setSectionIncluded(subjectCode, courseNumber, crn, included);
@@ -150,4 +157,30 @@ export class SchedulePage {
   nextSchedule(): void {
     this.currentIndex.update((i) => Math.min(this.scheduleCount() - 1, i + 1));
   }
+
+  exportIcs(): void {
+    const icsUrl = this.currentIcsUrl();
+    if (!icsUrl || this.exportingIcs()) return;
+
+    this.exportingIcs.set(true);
+    this.scheduler.downloadIcs(icsUrl).subscribe({
+      next: ({ blob, filename }) => {
+        triggerDownload(blob, filename);
+        this.exportingIcs.set(false);
+      },
+      error: (err: unknown) => {
+        this.error.set(err instanceof ApiError ? err.message : 'Failed to export schedule as .ics.');
+        this.exportingIcs.set(false);
+      },
+    });
+  }
+}
+
+function triggerDownload(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 }

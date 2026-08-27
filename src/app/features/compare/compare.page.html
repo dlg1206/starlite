@@ -82,11 +82,15 @@
 
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-secondary icon-btn"
               (click)="exportIcs(entry.id, entry.schedule)"
               [disabled]="exportingId() === entry.id"
+              [attr.title]="exportingId() === entry.id ? 'Exporting…' : 'Export .ical'"
+              [attr.aria-label]="exportingId() === entry.id ? 'Exporting…' : 'Export .ical'"
             >
-              {{ exportingId() === entry.id ? 'Exporting…' : 'Export .ical' }}
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+              </svg>
             </button>
           </div>
         </div>

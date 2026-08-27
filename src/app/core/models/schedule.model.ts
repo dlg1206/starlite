@@ -47,3 +47,9 @@ export interface ScheduleResponse {
   timestamp: string;
   schedules: Schedule[];
 }
+
+/** Response from decoding a single schedule id back into a `Schedule` (`GET /schedule/{id}/json`). */
+export interface DecodedScheduleResponse {
+  timestamp: string;
+  schedule: Schedule;
+}

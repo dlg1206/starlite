@@ -12,6 +12,12 @@
           <span class="nav-badge">{{ cart.count() }}</span>
         }
       </a>
+      <a routerLink="/compare" routerLinkActive="active">
+        Compare Schedules
+        @if (compare.count() > 0) {
+          <span class="nav-badge">{{ compare.count() }}</span>
+        }
+      </a>
     </nav>
     <a
       class="github-link"

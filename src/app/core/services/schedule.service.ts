@@ -3,7 +3,12 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Schedule, ScheduleRequest, ScheduleResponse } from '../models/schedule.model';
+import {
+  DecodedScheduleResponse,
+  Schedule,
+  ScheduleRequest,
+  ScheduleResponse,
+} from '../models/schedule.model';
 import { rethrowAsApiError } from './catalog.service';
 
 @Injectable({ providedIn: 'root' })
@@ -43,10 +48,24 @@ export class ScheduleService {
         catchError(rethrowAsApiError),
       );
   }
+
+  /** Decodes a base64 schedule id (as copied via the "Copy schedule ID" button) back into a `Schedule`. */
+  getScheduleById(id: string): Observable<Schedule> {
+    return this.http
+      .get<DecodedScheduleResponse>(`${this.base}/schedule/${encodeURIComponent(id)}/json`)
+      .pipe(map((res) => res.schedule), catchError(rethrowAsApiError));
+  }
 }
 
 function filenameFromContentDisposition(header: string | null): string | null {
   if (!header) return null;
   const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(header);
   return match ? decodeURIComponent(match[1]) : null;
+}
+
+/** The schedule id is the `{id}` path segment in `.../schedule/{id}/ics` (or `/json`). */
+export function extractScheduleId(url: string): string | null {
+  const segments = new URL(url).pathname.split('/').filter(Boolean);
+  const index = segments.indexOf('schedule');
+  return index >= 0 && index + 1 < segments.length ? segments[index + 1] : null;
 }

@@ -12,5 +12,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/schedule/schedule.page').then((m) => m.SchedulePage),
     title: 'Starlite · Build Schedule',
   },
+  {
+    path: 'compare',
+    loadComponent: () => import('./features/compare/compare.page').then((m) => m.ComparePage),
+    title: 'Starlite · Compare Schedules',
+  },
   { path: '**', redirectTo: 'search' },
 ];

@@ -1,3 +1,21 @@
+@if (showDisclaimer()) {
+  <div class="disclaimer-banner" role="note">
+    <span>
+      Starlite is an independent project and is not affiliated with or endorsed by
+      the University of Hawaiʻi. For official class availability, please use the official portal
+      at <a href="https://www.sis.hawaii.edu:9350/crseavail">https://www.sis.hawaii.edu:9350/crseavail</a>
+    </span>
+    <button
+      type="button"
+      class="disclaimer-close"
+      (click)="dismissDisclaimer()"
+      aria-label="Dismiss disclaimer"
+    >
+      ×
+    </button>
+  </div>
+}
+
 <div class="app-shell">
   <header class="app-header">
     <div class="brand">

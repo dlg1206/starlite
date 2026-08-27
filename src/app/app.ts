@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -30,4 +30,10 @@ export class App {
 
   protected readonly showSelectionPanel = () =>
     !this.currentUrl().startsWith('/schedule') && !this.currentUrl().startsWith('/compare');
+
+  protected readonly showDisclaimer = signal(true);
+
+  dismissDisclaimer(): void {
+    this.showDisclaimer.set(false);
+  }
 }

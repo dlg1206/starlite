@@ -51,12 +51,12 @@ export interface CourseBase {
   end_date: string;
 }
 
-/** Returned when a course search is made without ?detailed=true. */
+/** Returned when a course search is made with ?detailed=false. */
 export interface SimpleCourse extends CourseBase {
   num_sections: number;
 }
 
-/** Returned when a course search is made with ?detailed=true. */
+/** Returned by default (without ?detailed=false). */
 export interface DetailedCourse extends CourseBase {
   sections: Section[];
 }

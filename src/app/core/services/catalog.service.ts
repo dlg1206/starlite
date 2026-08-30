@@ -115,7 +115,8 @@ function sortCourses(courses: Course[]): Course[] {
 }
 
 function buildDetailedParams(detailed: boolean): HttpParams {
-  return detailed ? new HttpParams().set('detailed', 'true') : new HttpParams();
+  // The API returns the detailed shape by default, so only the simple shape needs an explicit param.
+  return detailed ? new HttpParams() : new HttpParams().set('detailed', 'false');
 }
 
 export function rethrowAsApiError(err: unknown): Observable<never> {

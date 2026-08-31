@@ -57,6 +57,38 @@
                   "with": "src/environments/environment.development.ts"
                 }
               ]
+            },
+            "offline": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public"
+                },
+                {
+                  "glob": "**/*",
+                  "input": "src/assets",
+                  "output": "assets"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.offline.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -72,6 +104,9 @@
             },
             "development": {
               "buildTarget": "starlite:build:development"
+            },
+            "offline": {
+              "buildTarget": "starlite:build:offline"
             }
           },
           "defaultConfiguration": "development"

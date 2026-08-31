@@ -5,6 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:offline": "ng build --configuration offline",
+    "start:offline": "ng serve --configuration offline",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

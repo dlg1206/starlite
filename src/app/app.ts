@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -8,11 +9,14 @@ import { SelectionPanel } from './shared/selection-panel/selection-panel';
 import { SelectionStore } from './core/state/selection.store';
 import { CartStore } from './core/state/cart.store';
 import { CompareStore } from './core/state/compare.store';
+import { OfflineCacheService } from './core/services/offline-cache.service';
 import { ThemeService } from './core/services/theme.service';
+
+const OFFLINE_NOTICE_KEY = 'starlite-offline-notice';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, SelectionPanel],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, SelectionPanel, DatePipe],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -24,6 +28,9 @@ export class App {
 
   /** Schedule generation needs a live API, so those tabs are disabled in offline builds. */
   protected readonly offline = environment.offline;
+
+  /** When the offline snapshot was last generated; null until loaded / when online. */
+  protected readonly cacheUpdatedAt = signal<string | null>(null);
 
   private readonly router = inject(Router);
   private readonly currentUrl = toSignal(
@@ -39,14 +46,25 @@ export class App {
 
   protected readonly showDisclaimer = signal(true);
 
-  /** Shown on every load of an offline deployment until dismissed for the session. */
-  protected readonly showOfflineNotice = signal(this.offline);
+  /** One-time popup on the first visit of an offline deployment. */
+  protected readonly showOfflineNotice = signal(
+    this.offline && localStorage.getItem(OFFLINE_NOTICE_KEY) !== 'seen',
+  );
+
+  constructor() {
+    if (this.offline) {
+      inject(OfflineCacheService)
+        .getLastUpdated()
+        .then((finishedAt) => this.cacheUpdatedAt.set(finishedAt));
+    }
+  }
 
   dismissDisclaimer(): void {
     this.showDisclaimer.set(false);
   }
 
   dismissOfflineNotice(): void {
+    localStorage.setItem(OFFLINE_NOTICE_KEY, 'seen');
     this.showOfflineNotice.set(false);
   }
 }

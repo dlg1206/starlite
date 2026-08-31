@@ -99,6 +99,16 @@
     </div>
   </header>
 
+  @if (offline) {
+    <p class="offline-banner" role="note">
+      <span class="offline-banner-dot" aria-hidden="true"></span>
+      Running in Offline Mode.
+      @if (cacheUpdatedAt(); as updatedAt) {
+        <span class="offline-banner-meta">Catalog last updated {{ updatedAt | date: 'medium' }}</span>
+      }
+    </p>
+  }
+
   @if (showSelectionPanel()) {
     <section class="selection-bar card">
       <app-selection-panel />
@@ -129,6 +139,9 @@
         Starlite is running using a bundled snapshot of the course catalog. You can search and browse
         courses, but schedule generation and comparison are unavailable without a live connection.
       </p>
+      @if (cacheUpdatedAt(); as updatedAt) {
+        <p class="modal-meta">Catalog last updated {{ updatedAt | date: 'medium' }}</p>
+      }
       <div class="modal-actions">
         <button type="button" class="btn btn-primary" (click)="dismissOfflineNotice()">
           Got it

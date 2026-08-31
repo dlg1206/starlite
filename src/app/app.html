@@ -24,18 +24,35 @@
     </div>
     <nav class="app-nav">
       <a routerLink="/search" routerLinkActive="active">Search Courses</a>
-      <a routerLink="/schedule" routerLinkActive="active">
-        Build Schedule
-        @if (cart.count() > 0) {
-          <span class="nav-badge">{{ cart.count() }}</span>
-        }
-      </a>
-      <a routerLink="/compare" routerLinkActive="active">
-        Compare Schedules
-        @if (compare.count() > 0) {
-          <span class="nav-badge">{{ compare.count() }}</span>
-        }
-      </a>
+      @if (offline) {
+        <span
+          class="nav-disabled"
+          aria-disabled="true"
+          title="Schedule generation is unavailable in offline mode — run with a live API connection to build schedules."
+        >
+          Build Schedule
+        </span>
+        <span
+          class="nav-disabled"
+          aria-disabled="true"
+          title="Schedule generation is unavailable in offline mode — run with a live API connection to compare schedules."
+        >
+          Compare Schedules
+        </span>
+      } @else {
+        <a routerLink="/schedule" routerLinkActive="active">
+          Build Schedule
+          @if (cart.count() > 0) {
+            <span class="nav-badge">{{ cart.count() }}</span>
+          }
+        </a>
+        <a routerLink="/compare" routerLinkActive="active">
+          Compare Schedules
+          @if (compare.count() > 0) {
+            <span class="nav-badge">{{ compare.count() }}</span>
+          }
+        </a>
+      }
     </nav>
     <div class="header-actions">
       <button
@@ -97,3 +114,26 @@
     <router-outlet />
   </main>
 </div>
+
+@if (showOfflineNotice()) {
+  <div class="modal-overlay" (click)="dismissOfflineNotice()">
+    <div
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="offline-notice-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="offline-notice-title" class="modal-title">Running in Offline Mode</h2>
+      <p class="modal-body">
+        Starlite is running using a bundled snapshot of the course catalog. You can search and browse
+        courses, but schedule generation and comparison are unavailable without a live connection.
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" (click)="dismissOfflineNotice()">
+          Got it
+        </button>
+      </div>
+    </div>
+  </div>
+}

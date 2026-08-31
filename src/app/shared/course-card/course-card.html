@@ -44,15 +44,17 @@
     <details class="sections-toggle">
       <summary>
         <span class="summary-text">{{ sections().length }} section(s)</span>
-        <button
-          type="button"
-          class="btn btn-sm"
-          [class.btn-secondary]="isAllInCart()"
-          [class.btn-primary]="!isAllInCart()"
-          (click)="$event.stopPropagation(); addAllToCart()"
-        >
-          {{ isAllInCart() ? 'All Sections in Cart ✓' : '+ Add All Sections' }}
-        </button>
+        @if (!offline) {
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.btn-secondary]="isAllInCart()"
+            [class.btn-primary]="!isAllInCart()"
+            (click)="$event.stopPropagation(); addAllToCart()"
+          >
+            {{ isAllInCart() ? 'All Sections in Cart ✓' : '+ Add All Sections' }}
+          </button>
+        }
       </summary>
       <div class="sections">
           @for (section of sections(); track section.crn) {
@@ -69,15 +71,17 @@
                     {{ section.cur_waitlist }}/{{ section.max_waitlist }} waitlist
                   </span>
                 }
-                <button
-                  type="button"
-                  class="btn btn-sm"
-                  [class.btn-secondary]="isSectionInCart(section)"
-                  [class.btn-primary]="!isSectionInCart(section)"
-                  (click)="toggleSectionInCart(section)"
-                >
-                  {{ isSectionInCart(section) ? 'In Cart ✓' : '+ Add' }}
-                </button>
+                @if (!offline) {
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [class.btn-secondary]="isSectionInCart(section)"
+                    [class.btn-primary]="!isSectionInCart(section)"
+                    (click)="toggleSectionInCart(section)"
+                  >
+                    {{ isSectionInCart(section) ? 'In Cart ✓' : '+ Add' }}
+                  </button>
+                }
               </div>
               <div class="section-body">
                 <span class="instructor">

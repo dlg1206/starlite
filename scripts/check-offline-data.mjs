@@ -3,7 +3,7 @@
 // produced (or served) without its snapshot. Exits non-zero on failure.
 import { readFileSync } from 'node:fs';
 
-const REQUIRED_FILES = ['src/assets/data/endpoint.json', 'src/assets/data/job_status.json'];
+const REQUIRED_FILES = ['src/assets/data/endpoint.json', 'src/assets/data/metadata.json'];
 
 const errors = [];
 for (const file of REQUIRED_FILES) {

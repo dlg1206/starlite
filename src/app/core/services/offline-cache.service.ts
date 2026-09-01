@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-/** Metadata about the job that produced the snapshot (src/assets/data/job_status.json). */
-interface SnapshotStatus {
+/** Metadata about the job that produced the snapshot (src/assets/data/metadata.json). */
+interface SnapshotMetadata {
   finished_at?: string;
 }
 
@@ -17,10 +17,10 @@ interface SnapshotStatus {
 @Injectable({ providedIn: 'root' })
 export class OfflineCacheService {
   private static readonly SNAPSHOT_URL = 'assets/data/endpoint.json';
-  private static readonly STATUS_URL = 'assets/data/job_status.json';
+  private static readonly METADATA_URL = 'assets/data/metadata.json';
 
   private entries: Promise<Map<string, unknown>> | null = null;
-  private status: Promise<SnapshotStatus> | null = null;
+  private metadata: Promise<SnapshotMetadata> | null = null;
 
   /**
    * Ensures both offline data files are present and valid JSON, rejecting
@@ -28,7 +28,7 @@ export class OfflineCacheService {
    * a missing or corrupt snapshot.
    */
   async verify(): Promise<void> {
-    await Promise.all([this.load(), this.loadStatus()]);
+    await Promise.all([this.load(), this.loadMetadata()]);
   }
 
   /** Returns the cached response body for a request URL, or null if not in the snapshot. */
@@ -38,8 +38,8 @@ export class OfflineCacheService {
 
   /** ISO timestamp of when the snapshot was last generated, or null if unavailable. */
   getLastUpdated(): Promise<string | null> {
-    return this.loadStatus()
-      .then((status) => status.finished_at ?? null)
+    return this.loadMetadata()
+      .then((metadata) => metadata.finished_at ?? null)
       .catch(() => null);
   }
 
@@ -60,11 +60,11 @@ export class OfflineCacheService {
   }
 
   /** Fetches the snapshot metadata once, memoizing the result. */
-  private loadStatus(): Promise<SnapshotStatus> {
-    if (!this.status) {
-      this.status = fetchJson<SnapshotStatus>(OfflineCacheService.STATUS_URL);
+  private loadMetadata(): Promise<SnapshotMetadata> {
+    if (!this.metadata) {
+      this.metadata = fetchJson<SnapshotMetadata>(OfflineCacheService.METADATA_URL);
     }
-    return this.status;
+    return this.metadata;
   }
 }
 

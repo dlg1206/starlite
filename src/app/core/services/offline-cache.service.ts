@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
 
 /** Metadata about the job that produced the snapshot (src/assets/data/metadata.json). */
-interface SnapshotMetadata {
+export interface SnapshotMetadata {
+  /** When the cache was last checked for updates (ISO-8601). */
   finished_at?: string;
+  /** Number of course offerings in the snapshot. */
+  total_complete_offerings?: number;
+  /** Checksum of the snapshot contents. */
+  checksum?: string;
 }
 
 /**
@@ -36,11 +41,9 @@ export class OfflineCacheService {
     return this.load().then((entries) => entries.get(url.toLowerCase()) ?? null);
   }
 
-  /** ISO timestamp of when the snapshot was last generated, or null if unavailable. */
-  getLastUpdated(): Promise<string | null> {
-    return this.loadMetadata()
-      .then((metadata) => metadata.finished_at ?? null)
-      .catch(() => null);
+  /** Snapshot metadata (last-checked time, offering count, checksum), or null if unavailable. */
+  getMetadata(): Promise<SnapshotMetadata | null> {
+    return this.loadMetadata().catch(() => null);
   }
 
   /** Fetches and normalizes the snapshot once, memoizing the result. */

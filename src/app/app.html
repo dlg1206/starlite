@@ -103,8 +103,31 @@
     <p class="offline-banner" role="note">
       <span class="offline-banner-dot" aria-hidden="true"></span>
       Running in Offline Mode.
-      @if (cacheUpdatedAt(); as updatedAt) {
-        <span class="offline-banner-meta">Catalog last updated {{ updatedAt | date: 'medium' }}</span>
+      @if (cacheMetadata(); as meta) {
+        @if (cacheCheckedAt(); as checkedAt) {
+          <span class="offline-banner-meta">
+            Cache last checked for updates {{ checkedAt | date: 'medium' }}
+          </span>
+        }
+        <span class="offline-info">
+          <button type="button" class="offline-info-icon" aria-label="Cache details">i</button>
+          <span class="offline-info-popover" role="tooltip">
+            @if (meta.total_complete_offerings != null) {
+              <span class="offline-info-row">
+                <strong>{{ meta.total_complete_offerings }}</strong> offerings cached
+              </span>
+            }
+            @if (meta.checksum) {
+              <span class="offline-info-row offline-info-checksum">
+                <span class="offline-info-label">Checksum</span>
+                <code>{{ meta.checksum }}</code>
+                <button type="button" class="btn btn-sm btn-secondary" (click)="copyChecksum()">
+                  {{ checksumCopied() ? 'Copied ✓' : 'Copy' }}
+                </button>
+              </span>
+            }
+          </span>
+        </span>
       }
     </p>
   }
@@ -139,8 +162,8 @@
         Starlite is running using a bundled snapshot of the course catalog. You can search and browse
         courses, but schedule generation and comparison are unavailable without a live connection.
       </p>
-      @if (cacheUpdatedAt(); as updatedAt) {
-        <p class="modal-meta">Catalog last updated {{ updatedAt | date: 'medium' }}</p>
+      @if (cacheCheckedAt(); as checkedAt) {
+        <p class="modal-meta">Cache last checked for updates {{ checkedAt | date: 'medium' }}</p>
       }
       <div class="modal-actions">
         <button type="button" class="btn btn-primary" (click)="dismissOfflineNotice()">

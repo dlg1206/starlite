@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 
+import { environment } from '../../../environments/environment';
 import { CartStore } from '../../core/state/cart.store';
 import { SelectionStore } from '../../core/state/selection.store';
 import {
@@ -22,6 +23,9 @@ export class CourseCard {
   private readonly store = inject(SelectionStore);
 
   readonly course = input.required<Course>();
+
+  /** Schedule generation is unavailable offline, so cart controls are hidden. */
+  protected readonly offline = environment.offline;
 
   protected readonly sisUrl = computed<string | null>(() => {
     const campus = this.store.selectedCampus();

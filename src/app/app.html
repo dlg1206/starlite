@@ -24,18 +24,35 @@
     </div>
     <nav class="app-nav">
       <a routerLink="/search" routerLinkActive="active">Search Courses</a>
-      <a routerLink="/schedule" routerLinkActive="active">
-        Build Schedule
-        @if (cart.count() > 0) {
-          <span class="nav-badge">{{ cart.count() }}</span>
-        }
-      </a>
-      <a routerLink="/compare" routerLinkActive="active">
-        Compare Schedules
-        @if (compare.count() > 0) {
-          <span class="nav-badge">{{ compare.count() }}</span>
-        }
-      </a>
+      @if (offline) {
+        <span
+          class="nav-disabled"
+          aria-disabled="true"
+          title="Schedule generation is unavailable in offline mode — run with a live API connection to build schedules."
+        >
+          Build Schedule
+        </span>
+        <span
+          class="nav-disabled"
+          aria-disabled="true"
+          title="Schedule generation is unavailable in offline mode — run with a live API connection to compare schedules."
+        >
+          Compare Schedules
+        </span>
+      } @else {
+        <a routerLink="/schedule" routerLinkActive="active">
+          Build Schedule
+          @if (cart.count() > 0) {
+            <span class="nav-badge">{{ cart.count() }}</span>
+          }
+        </a>
+        <a routerLink="/compare" routerLinkActive="active">
+          Compare Schedules
+          @if (compare.count() > 0) {
+            <span class="nav-badge">{{ compare.count() }}</span>
+          }
+        </a>
+      }
     </nav>
     <div class="header-actions">
       <button
@@ -82,6 +99,39 @@
     </div>
   </header>
 
+  @if (offline) {
+    <p class="offline-banner" role="note">
+      <span class="offline-banner-dot" aria-hidden="true"></span>
+      Running in Offline Mode.
+      @if (cacheMetadata(); as meta) {
+        @if (cacheCheckedAt(); as checkedAt) {
+          <span class="offline-banner-meta">
+            Cache last checked for updates {{ checkedAt | date: 'medium' }}
+          </span>
+        }
+        <span class="offline-info">
+          <button type="button" class="offline-info-icon" aria-label="Cache details">i</button>
+          <span class="offline-info-popover" role="tooltip">
+            @if (meta.total_complete_offerings != null) {
+              <span class="offline-info-row">
+                <strong>{{ meta.total_complete_offerings }}</strong> offerings cached
+              </span>
+            }
+            @if (meta.checksum) {
+              <span class="offline-info-row offline-info-checksum">
+                <span class="offline-info-label">Checksum</span>
+                <code>{{ meta.checksum }}</code>
+                <button type="button" class="btn btn-sm btn-secondary" (click)="copyChecksum()">
+                  {{ checksumCopied() ? 'Copied ✓' : 'Copy' }}
+                </button>
+              </span>
+            }
+          </span>
+        </span>
+      }
+    </p>
+  }
+
   @if (showSelectionPanel()) {
     <section class="selection-bar card">
       <app-selection-panel />
@@ -97,3 +147,29 @@
     <router-outlet />
   </main>
 </div>
+
+@if (showOfflineNotice()) {
+  <div class="modal-overlay" (click)="dismissOfflineNotice()">
+    <div
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="offline-notice-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="offline-notice-title" class="modal-title">Running in Offline Mode</h2>
+      <p class="modal-body">
+        Starlite is running using a bundled snapshot of the course catalog. You can search and browse
+        courses, but schedule generation and comparison are unavailable without a live connection.
+      </p>
+      @if (cacheCheckedAt(); as checkedAt) {
+        <p class="modal-meta">Cache last checked for updates {{ checkedAt | date: 'medium' }}</p>
+      }
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" (click)="dismissOfflineNotice()">
+          Got it
+        </button>
+      </div>
+    </div>
+  </div>
+}

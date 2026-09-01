@@ -6,23 +6,42 @@
 name: starlite
 services:
 
-  # gui
-  gui:
-    image: starlite-gui
-    container_name: starlite-gui
-    build: .
+  api:
+    image: starlite-api
+    container_name: starlite-api
     pull_policy: never  # always use local build
+    build: api
+    networks: [ starlite-net ]
+
+  web:
+    image: starlite-web
+    container_name: starlite-web
+    pull_policy: never  # always use local build
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: online
     ports:
       - "80:80"
     depends_on:
       api:
         condition: service_healthy
+    networks: [ starlite-net ]
 
-  # starlite api server
-  api:
-    image: starlite-api
-    container_name: starlite-api
-    build: api
-    pull_policy: never  # always use local build
-    environment:
-      PUBLIC_ENDPOINT: "http://api:8080"
+  web-offline:
+    image: starlite-web-offline
+    container_name: starlite-web-offline
+    pull_policy: never # always use local build
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: offline
+    ports:
+      - "80:80"
+    profiles: [ "offline" ]
+    networks: [ starlite-net ]
+
+
+networks:
+  starlite-net:
+    name: starlite-net

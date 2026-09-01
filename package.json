@@ -1,10 +1,14 @@
 {
   "name": "starlite",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "fetch:offline-data": "./scripts/update-cache.sh",
+    "check:offline-data": "node scripts/check-offline-data.mjs",
+    "build:offline": "npm run check:offline-data && ng build --configuration offline",
+    "start:offline": "npm run check:offline-data && ng serve --configuration offline",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

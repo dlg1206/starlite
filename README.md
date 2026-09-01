@@ -46,7 +46,9 @@
 
 ## Quickstart
 
-Requires [Docker](https://docs.docker.com/engine/install/)
+> Start a live deployment to get realtime course data
+>
+> Requires [Docker](https://docs.docker.com/engine/install/)
 
 1. Clone the repo with submodules
 
@@ -60,7 +62,42 @@ git clone --recurse-submodules --shallow-submodules https://github.com/dlg1206/s
 docker compose up
 ```
 
-The starlite gui will be available at `http://localhost` after a few moments.
+The starlite gui will be available at [`http://localhost`](http://localhost) after a few moments.
+
+### Offline mode
+
+> Deploy using an offline cache. Schedule services will be unavailable
+>
+> Requires [Docker](https://docs.docker.com/engine/install/)
+
+1. Clone the repo with submodules
+
+```bash
+git clone --recurse-submodules --shallow-submodules https://github.com/dlg1206/starlite
+```
+
+2. If `npm` is installed, run:
+
+```bash
+npm run fetch:offline-data
+```
+
+else run the script directly
+
+```bash
+./scripts/update-cache.sh
+```
+
+> [!WARNING]
+> Fetching all data will take 3-4 minutes. This will only need to be once or when checking for updates
+
+3. Once the script finishes, launch the compose stack
+
+```bash
+docker compose --profile offline up --build web-offline
+```
+
+The starlite gui will be available at [`http://localhost`](http://localhost) after a few moments.
 
 ## Local Deployment
 
@@ -93,4 +130,48 @@ npm install
 npm start
 ```
 
-The starlite gui will be available at `http://localhost:4200`
+The starlite gui will be available at [`http://localhost:4200`](http://localhost:4200)
+
+### Offline mode
+
+**Prerequisites**
+
+- `java` >= 25
+- `node` >= 20
+- `npm` >= 10
+
+
+1. Clone the repo with submodules
+
+```bash
+git clone --recurse-submodules https://github.com/dlg1206/starlite
+```
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Fetch offline cache
+
+```bash
+npm run fetch:offline-data
+```
+
+else run the script directly
+
+```bash
+./scripts/update-cache.sh
+```
+
+> [!WARNING]
+> Fetching all data will take 3-4 minutes. This will only need to be once or when checking for updates
+
+4. Launch dev server
+
+```bash
+npm start:offline
+```
+
+The starlite gui will be available at [`http://localhost:4200`](http://localhost:4200)

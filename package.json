@@ -26,10 +26,10 @@
   },
   "devDependencies": {
     "@angular/build": "^21.2.26",
-    "@angular/cli": "^21.2.26",
+    "@angular/cli": "^21.2.27",
     "@angular/compiler-cli": "^21.2.25",
     "jsdom": "^29.1.1",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "typescript": "~5.9.2",
     "vitest": "^4.1.11"
   }

@@ -38,7 +38,7 @@
 <img src="assets/6_schedules_preview.png" width="750" height="561" alt="preview of all possible schedules">
 
 - Generate all possible schedules, with support for reserved blocks and class buffer times
-- Download generated schedules as an [ICalender](https://en.wikipedia.org/wiki/ICalendar) file that can be imported into [Google Calendar](https://support.google.com/calendar/answer/37118), [Apple Calendar](https://support.apple.com/guide/calendar/import-or-export-calendars-icl1023/mac),[Outlook](https://support.microsoft.com/en-us/outlook/import-or-subscribe-to-a-calendar-in-outlook-com-or-outlook-on-the-web), and other calendar software.
+- Download generated schedules as an [ICalender](https://en.wikipedia.org/wiki/ICalendar) file that can be imported into [Google Calendar](https://support.google.com/calendar/answer/37118), [Apple Calendar](https://support.apple.com/guide/calendar/import-or-export-calendars-icl1023/mac), [Outlook](https://support.microsoft.com/en-us/outlook/import-or-subscribe-to-a-calendar-in-outlook-com-or-outlook-on-the-web), and other calendar software.
 
 <img src="assets/7_compare_schedules.png" width="750" height="735" alt="compare schedules">
 
@@ -171,7 +171,7 @@ else run the script directly
 4. Launch dev server
 
 ```bash
-npm start:offline
+npm run start:offline
 ```
 
 The starlite gui will be available at [`http://localhost:4200`](http://localhost:4200)
